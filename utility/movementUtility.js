@@ -79,6 +79,7 @@ export const doMovementThings = (
       if (activeSide === "white") {
         const blackCopy = black;
         delete blackCopy[oppTargetPieceName];
+        console.log(blackCopy);
         setBlack(blackCopy);
         const deletedBlock = document.getElementById(id);
         deletedBlock.innerHTML = "";
@@ -157,6 +158,23 @@ const calculatePawnMovement = (
       `${Number(current[0]) + rowMovementDirection}${rightColVal}`
     );
   }
+  if (
+    activeSide === "white" &&
+    current[0] === "7" &&
+    !oppPiecesLocArray.includes(`${Number(current[0]) - 1}${current[1]}`) &&
+    !oppPiecesLocArray.includes(`${Number(current[0]) - 2}${current[1]}`)
+  ) {
+    allowedPosArray.push(`${Number(current[0]) - 2}${current[1]}`);
+  }
+  if (
+    activeSide === "black" &&
+    current[0] === "2" &&
+    !oppPiecesLocArray.includes(`${Number(current[0]) + 1}${current[1]}`) &&
+    !oppPiecesLocArray.includes(`${Number(current[0]) + 2}${current[1]}`)
+  ) {
+    allowedPosArray.push(`${Number(current[0]) + 2}${current[1]}`);
+  }
+  console.log(allowedPosArray);
   return allowedPosArray;
 };
 
@@ -352,11 +370,7 @@ const calculateBishopMovement = (
   return allowedPosArray;
 };
 
-const calculateKingMovement = (
-  current,
-  myPiecesLocArray,
-  oppPiecesLocArray
-) => {
+const calculateKingMovement = (current, myPiecesLocArray) => {
   const allowedPosArray = [];
   const movementBluePrint = [
     [+1, -1],
