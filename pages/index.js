@@ -2,11 +2,21 @@ import { useEffect, useState } from "react";
 import {
   calculatePosibleMovementLocations,
   doMovementThings,
+  handleCastling,
 } from "../utility/movementUtility";
 import { updateBoard } from "../utility/useEffectUtil";
 
 export default function Home() {
   const [activeSide, setactiveSide] = useState("white");
+  const [castlingInfo, setCastlingInfo] = useState({
+    whiteKing: false,
+    whiteRook1: false,
+    whiteRook2: false,
+    balckKing: false,
+    blackRook1: false,
+    blackRook2: false,
+  });
+  const [castleAllowedLoc, setCastleAllowedLoc] = useState([]);
   const [white, setWhite] = useState({
     "white_pawn_1.svg": "7a",
     "white_pawn_2.svg": "7b",
@@ -17,8 +27,8 @@ export default function Home() {
     "white_pawn_7.svg": "7g",
     "white_pawn_8.svg": "7h",
     "white_rook_1.svg": "8a",
-    "white_horse_1.svg": "8b",
-    "white_bishop_1.svg": "8c",
+    "white_horse_1.svg": "6b",
+    "white_bishop_1.svg": "6c",
     "white_king.svg": "8d",
     "white_queen.svg": "8e",
     "white_bishop_2.svg": "8f",
@@ -57,14 +67,34 @@ export default function Home() {
     const allPiecePosArray = Object.values(
       activeSide === "white" ? white : black
     );
-    if (allPiecePosArray.includes(id)) {
+    if (castleAllowedLoc.includes(id)) {
+      handleCastling(
+        id,
+        activePiece,
+        activeSide,
+        setactiveSide,
+        white,
+        setWhite,
+        black,
+        setBlack,
+        setallowedPos,
+        setactivePiece,
+        castlingInfo,
+        setCastlingInfo,
+        setCastleAllowedLoc
+      );
+    } else if (allPiecePosArray.includes(id)) {
       setactivePiece(id);
       calculatePosibleMovementLocations(
         id,
         activeSide,
         white,
         black,
-        setallowedPos
+        setallowedPos,
+        castlingInfo,
+        setCastlingInfo,
+        castleAllowedLoc,
+        setCastleAllowedLoc
       );
     } else {
       doMovementThings(
@@ -78,7 +108,9 @@ export default function Home() {
         black,
         setBlack,
         setallowedPos,
-        setactivePiece
+        setactivePiece,
+        castlingInfo,
+        setCastlingInfo
       );
     }
   };
@@ -106,6 +138,10 @@ export default function Home() {
                 className={`flex items-center justify-center h-full w-full ${
                   allowedPos.includes(`${rowVal + colVal}`)
                     ? "bg-red-200 border border-3 border-white"
+                    : ""
+                } ${
+                  castleAllowedLoc.includes(`${rowVal + colVal}`)
+                    ? "bg-green-200 border-3 border-white"
                     : ""
                 }`}
                 id={`${rowVal + colVal}`}

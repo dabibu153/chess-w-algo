@@ -6,7 +6,11 @@ export const calculatePosibleMovementLocations = (
   activeSide,
   white,
   black,
-  setallowedPos
+  setallowedPos,
+  castlingInfo,
+  setCastlingInfo,
+  castleAllowedLoc,
+  setCastleAllowedLoc
 ) => {
   const opponents = activeSide === "white" ? black : white;
   const me = activeSide === "white" ? white : black;
@@ -41,8 +45,19 @@ export const calculatePosibleMovementLocations = (
     );
     setallowedPos(finalAllowedPos);
   } else if (myPiece.split("_")[1] === "king.svg") {
-    finalAllowedPos = calculateKingMovement(current, myPiecesLocArray);
-    setallowedPos(finalAllowedPos);
+    const kingResponse = calculateKingMovement(
+      current,
+      activeSide,
+      myPiecesLocArray,
+      oppPiecesLocArray,
+      castlingInfo,
+      setCastlingInfo,
+      castleAllowedLoc,
+      setCastleAllowedLoc
+    );
+    console.log("king fin resp =>", kingResponse);
+    setallowedPos(kingResponse.allowedPosArray);
+    setCastleAllowedLoc(kingResponse.allowedCastleArray);
   } else if (myPiece.split("_")[1] === "queen.svg") {
     finalAllowedPos = [
       ...calculateRookMovement(current, myPiecesLocArray, oppPiecesLocArray),
@@ -50,6 +65,102 @@ export const calculatePosibleMovementLocations = (
     ];
     setallowedPos(finalAllowedPos);
   }
+};
+
+export const handleCastling = (
+  id,
+  current,
+  activeSide,
+  setactiveSide,
+  white,
+  setWhite,
+  black,
+  setBlack,
+  setallowedPos,
+  setactivePiece,
+  castlingInfo,
+  setCastlingInfo,
+  setCastleAllowedLoc
+) => {
+  console.log("entered castling logic");
+  const findPieceData = (current, allPositionsObj) => {
+    const nameArray = Object.keys(allPositionsObj);
+    const posArray = Object.values(allPositionsObj);
+    const index = posArray.findIndex((val) => val === current);
+    return nameArray[index];
+  };
+
+  const myPieceName = findPieceData(
+    current,
+    activeSide === "white" ? white : black
+  );
+  const targetPieceName = findPieceData(
+    id,
+    activeSide === "white" ? white : black
+  );
+  switch (myPieceName.split(".")[0]) {
+    case "white_king":
+      if (targetPieceName.split(".")[0] === "white_rook_1") {
+        setWhite({
+          ...white,
+          "white_king.svg": "8b",
+          "white_rook_1.svg": "8c",
+        });
+        setCastlingInfo({
+          ...castlingInfo,
+          whiteKing: true,
+          whiteRook1: true,
+          whiteRook2: true,
+        });
+      } else if (targetPieceName.split(".")[0] === "white_rook_2") {
+        setWhite({
+          ...white,
+          "white_king.svg": "8f",
+          "white_rook_2.svg": "8e",
+        });
+        setCastlingInfo({
+          ...castlingInfo,
+          whiteKing: true,
+          whiteRook1: true,
+          whiteRook2: true,
+        });
+      }
+      break;
+
+    case "black_king":
+      if (targetPieceName.split(".")[0] === "black_rook_1") {
+        setBlack({
+          ...black,
+          "black_king.svg": "1b",
+          "black_rook_1.svg": "1c",
+        });
+        setCastlingInfo({
+          ...castlingInfo,
+          blackKing: true,
+          blackRook1: true,
+          blackRook2: true,
+        });
+      } else if (targetPieceName.split(".")[0] === "balck_rook_2") {
+        setBlack({
+          ...black,
+          "black_king.svg": "1f",
+          "black_rook_2.svg": "1e",
+        });
+        setCastlingInfo({
+          ...castlingInfo,
+          blackKing: true,
+          blackRook1: true,
+          blackRook2: true,
+        });
+      }
+      break;
+    default:
+      break;
+  }
+  setallowedPos([]);
+  setactiveSide(activeSide === "white" ? "black" : "white");
+  setactivePiece();
+  setCastleAllowedLoc([]);
 };
 
 export const doMovementThings = (
@@ -63,7 +174,9 @@ export const doMovementThings = (
   black,
   setBlack,
   setallowedPos,
-  setactivePiece
+  setactivePiece,
+  castlingInfo,
+  setCastlingInfo
 ) => {
   console.log("movement was attempted for", id);
   if (allowedPos.includes(id)) {
@@ -81,30 +194,40 @@ export const doMovementThings = (
         delete blackCopy[oppTargetPieceName];
         console.log(blackCopy);
         setBlack(blackCopy);
-        // const deletedBlock = document.getElementById(id);
-        // deletedBlock.innerHTML = "";
       } else {
         const whiteCopy = white;
         delete whiteCopy[oppTargetPieceName];
         setWhite(whiteCopy);
-        // const deletedBlock = document.getElementById(id);
-        // deletedBlock.innerHTML = "";
       }
     }
     const myTargetPieceIndex = myPos.findIndex((val) => val === activePiece);
     const myTargetPieceName = myPieces[myTargetPieceIndex];
     if (activeSide === "white") {
       setWhite({ ...white, [myTargetPieceName]: id });
-      // const originalDiv = document.getElementById(activePiece);
-      // originalDiv.innerHTML = "";
-      // const targetDiv = document.getElementById(id);
-      // targetDiv.innerHTML = `<img className="h-20 w-20" src="/assets/${myTargetPieceName}" alt="${myTargetPieceName}"/>`;
     } else {
       setBlack({ ...black, [myTargetPieceName]: id });
-      // const originalDiv = document.getElementById(activePiece);
-      // originalDiv.innerHTML = "";
-      // const targetDiv = document.getElementById(id);
-      // targetDiv.innerHTML = `<img className="h-20 w-20" src="/assets/${myTargetPieceName}" alt="${myTargetPieceName}"/>`;
+    }
+    switch (myTargetPieceName.split(".")[0]) {
+      case "white_king":
+        setCastlingInfo({ ...castlingInfo, whiteKing: true });
+        break;
+      case "black_king":
+        setCastlingInfo({ ...castlingInfo, blackKing: true });
+        break;
+      case "white_rook_1":
+        setCastlingInfo({ ...castlingInfo, whiteRook1: true });
+        break;
+      case "white_rook_2":
+        setCastlingInfo({ ...castlingInfo, whitrRook2: true });
+        break;
+      case "black_rook_1":
+        setCastlingInfo({ ...castlingInfo, blackRook1: true });
+        break;
+      case "black_rook_2":
+        setCastlingInfo({ ...castlingInfo, blackRook2: true });
+        break;
+      default:
+        break;
     }
     setallowedPos([]);
     setactiveSide(activeSide === "white" ? "black" : "white");
@@ -370,8 +493,18 @@ const calculateBishopMovement = (
   return allowedPosArray;
 };
 
-const calculateKingMovement = (current, myPiecesLocArray) => {
+const calculateKingMovement = (
+  current,
+  activeSide,
+  myPiecesLocArray,
+  oppPiecesLocArray,
+  castlingInfo,
+  setCastlingInfo,
+  castleAllowedLoc,
+  setCastleAllowedLoc
+) => {
   const allowedPosArray = [];
+  const allowedCastleArray = [];
   const movementBluePrint = [
     [+1, -1],
     [+1, +0],
@@ -395,5 +528,32 @@ const calculateKingMovement = (current, myPiecesLocArray) => {
       allowedPosArray.push(nextPos);
     }
   }
-  return allowedPosArray;
+  if (activeSide === "white")
+    if (castlingInfo.whiteKing === false && castlingInfo.whiteRook1 === false) {
+      const spaceBetweenLeft = ["8b", "8c"];
+      const checkCommonMy = myPiecesLocArray.filter((val) =>
+        spaceBetweenLeft.includes(val)
+      );
+      const checkCommonOpp = oppPiecesLocArray.filter((val) =>
+        spaceBetweenLeft.includes(val)
+      );
+
+      if ([...checkCommonMy, ...checkCommonOpp].length === 0) {
+        allowedCastleArray.push("8a");
+      }
+    }
+  if (castlingInfo.whiteKing === false && castlingInfo.whiteRook2 === false) {
+    const spaceBetweenRight = ["8e", "8f", "8g"];
+    const checkCommonMy = myPiecesLocArray.filter((val) =>
+      spaceBetweenRight.includes(val)
+    );
+    const checkCommonOpp = oppPiecesLocArray.filter((val) =>
+      spaceBetweenRight.includes(val)
+    );
+
+    if ([...checkCommonMy, ...checkCommonOpp].length === 0) {
+      allowedCastleArray.push("8h");
+    }
+  }
+  return { allowedPosArray, allowedCastleArray };
 };
