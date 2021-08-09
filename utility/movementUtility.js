@@ -81,30 +81,30 @@ export const doMovementThings = (
         delete blackCopy[oppTargetPieceName];
         console.log(blackCopy);
         setBlack(blackCopy);
-        const deletedBlock = document.getElementById(id);
-        deletedBlock.innerHTML = "";
+        // const deletedBlock = document.getElementById(id);
+        // deletedBlock.innerHTML = "";
       } else {
         const whiteCopy = white;
         delete whiteCopy[oppTargetPieceName];
         setWhite(whiteCopy);
-        const deletedBlock = document.getElementById(id);
-        deletedBlock.innerHTML = "";
+        // const deletedBlock = document.getElementById(id);
+        // deletedBlock.innerHTML = "";
       }
     }
     const myTargetPieceIndex = myPos.findIndex((val) => val === activePiece);
     const myTargetPieceName = myPieces[myTargetPieceIndex];
     if (activeSide === "white") {
       setWhite({ ...white, [myTargetPieceName]: id });
-      const originalDiv = document.getElementById(activePiece);
-      originalDiv.innerHTML = "";
-      const targetDiv = document.getElementById(id);
-      targetDiv.innerHTML = `<img className="h-20 w-20" src="/assets/${myTargetPieceName}" alt="${myTargetPieceName}"/>`;
+      // const originalDiv = document.getElementById(activePiece);
+      // originalDiv.innerHTML = "";
+      // const targetDiv = document.getElementById(id);
+      // targetDiv.innerHTML = `<img className="h-20 w-20" src="/assets/${myTargetPieceName}" alt="${myTargetPieceName}"/>`;
     } else {
       setBlack({ ...black, [myTargetPieceName]: id });
-      const originalDiv = document.getElementById(activePiece);
-      originalDiv.innerHTML = "";
-      const targetDiv = document.getElementById(id);
-      targetDiv.innerHTML = `<img className="h-20 w-20" src="/assets/${myTargetPieceName}" alt="${myTargetPieceName}"/>`;
+      // const originalDiv = document.getElementById(activePiece);
+      // originalDiv.innerHTML = "";
+      // const targetDiv = document.getElementById(id);
+      // targetDiv.innerHTML = `<img className="h-20 w-20" src="/assets/${myTargetPieceName}" alt="${myTargetPieceName}"/>`;
     }
     setallowedPos([]);
     setactiveSide(activeSide === "white" ? "black" : "white");

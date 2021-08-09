@@ -2,9 +2,8 @@ import { useEffect, useState } from "react";
 import {
   calculatePosibleMovementLocations,
   doMovementThings,
-  handleMovement,
 } from "../utility/movementUtility";
-import { innitializeBoard } from "../utility/useEffectUtil";
+import { updateBoard } from "../utility/useEffectUtil";
 
 export default function Home() {
   const [activeSide, setactiveSide] = useState("white");
@@ -51,8 +50,8 @@ export default function Home() {
   const cols = ["a", "b", "c", "d", "e", "f", "g", "h"];
 
   useEffect(() => {
-    innitializeBoard(white, black, rows, cols);
-  }, []);
+    updateBoard(white, black);
+  }, [white, black]);
 
   const boardClicked = (id) => {
     const allPiecePosArray = Object.values(
