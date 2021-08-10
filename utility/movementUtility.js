@@ -22,6 +22,7 @@ export const calculatePosibleMovementLocations = (
     blackRook1: false,
     blackRook2: false,
   });
+  setCastleAllowedLoc([]);
 
   const myPiece = findPieceData(current, me);
   const myPiecesLocArray = Object.values(me);
@@ -47,8 +48,10 @@ export const calculatePosibleMovementLocations = (
       oppPiecesLocArray,
       castlingInfo
     );
-    setallowedPos(rookMovementResp.finalAllowedPos);
+    console.log(rookMovementResp);
+    setallowedPos(rookMovementResp.allowedPosArray);
     setCastleAllowedLoc(rookMovementResp.allowedCastlingLocArray);
+    setShowCastleButton(rookMovementResp.castlingButtonState);
   } else if (myPiece.split("_")[1] === "bishop") {
     finalAllowedPos = calculateBishopMovement(
       current,
@@ -69,7 +72,14 @@ export const calculatePosibleMovementLocations = (
     setShowCastleButton(kingResponse.castlingButtonState);
   } else if (myPiece.split("_")[1] === "queen.svg") {
     finalAllowedPos = [
-      ...calculateRookMovement(current, myPiecesLocArray, oppPiecesLocArray),
+      ...calculateRookMovement(
+        current,
+        activeSide,
+        myPiece,
+        myPiecesLocArray,
+        oppPiecesLocArray,
+        castlingInfo
+      ).allowedPosArray,
       ...calculateBishopMovement(current, myPiecesLocArray, oppPiecesLocArray),
     ];
     setallowedPos(finalAllowedPos);
@@ -395,7 +405,10 @@ const calculateRookMovement = (
 
   switch (myPiece.split(".")[0]) {
     case "white_rook_1":
-      if ((castlingInfo.whiteKing === castlingInfo.whiteRook1) === false) {
+      if (
+        castlingInfo.whiteKing === false &&
+        castlingInfo.whiteRook1 === false
+      ) {
         const spaceBetweenLeft = ["8b", "8c"];
         const checkCommonMy = myPiecesLocArray.filter((val) =>
           spaceBetweenLeft.includes(val)
@@ -403,15 +416,19 @@ const calculateRookMovement = (
         const checkCommonOpp = oppPiecesLocArray.filter((val) =>
           spaceBetweenLeft.includes(val)
         );
-
+        console.log(checkCommonMy, checkCommonOpp);
         if ([...checkCommonMy, ...checkCommonOpp].length === 0) {
+          console.log("got this");
           allowedCastlingLocArray.push("8d");
           castlingButtonState.whiteRook1 = true;
         }
       }
       break;
     case "white_rook_2":
-      if ((castlingInfo.whiteKing === castlingInfo.whiteRook2) === false) {
+      if (
+        castlingInfo.whiteKing === false &&
+        castlingInfo.whiteRook2 === false
+      ) {
         const spaceBetweenLeft = ["8e", "8f", "8g"];
         const checkCommonMy = myPiecesLocArray.filter((val) =>
           spaceBetweenLeft.includes(val)
@@ -427,7 +444,10 @@ const calculateRookMovement = (
       }
       break;
     case "black_rook_1":
-      if ((castlingInfo.blackKing === castlingInfo.blackRook1) === false) {
+      if (
+        castlingInfo.blackKing === false &&
+        castlingInfo.blackRook1 === false
+      ) {
         const spaceBetweenLeft = ["1b", "1c"];
         const checkCommonMy = myPiecesLocArray.filter((val) =>
           spaceBetweenLeft.includes(val)
@@ -443,7 +463,10 @@ const calculateRookMovement = (
       }
       break;
     case "black_rook_2":
-      if ((castlingInfo.blackKing === castlingInfo.blackRook2) === false) {
+      if (
+        castlingInfo.blackKing === false &&
+        castlingInfo.blackRook2 === false
+      ) {
         const spaceBetweenLeft = ["1e", "1f", "1g"];
         const checkCommonMy = myPiecesLocArray.filter((val) =>
           spaceBetweenLeft.includes(val)
@@ -462,8 +485,8 @@ const calculateRookMovement = (
     default:
       break;
   }
-
-  return { allowedPosArray, allowedCastlingLocArray };
+  console.log("insidefun", allowedCastlingLocArray);
+  return { allowedPosArray, allowedCastlingLocArray, castlingButtonState };
 };
 
 const calculateBishopMovement = (
