@@ -98,7 +98,9 @@ export const handleCastling = (
   setactivePiece,
   castlingInfo,
   setCastlingInfo,
-  setCastleAllowedLoc
+  setCastleAllowedLoc,
+  showCastleButton,
+  setShowCastleButton
 ) => {
   if (activeSide === "white") {
     setWhite({ ...white });
@@ -136,7 +138,7 @@ export const handleCastling = (
       break;
 
     case "black_rook_1":
-      setBlack({ ...black, "black_king.svg": "8b", "black_rook_1.svg": "8c" });
+      setBlack({ ...black, "black_king.svg": "1b", "black_rook_1.svg": "1c" });
       setCastlingInfo({
         ...castlingInfo,
         blackKing: true,
@@ -146,7 +148,7 @@ export const handleCastling = (
       break;
 
     case "black_rook_2":
-      setBlack({ ...black, "black_king.svg": "8f", "black_rook_2.svg": "8e" });
+      setBlack({ ...black, "black_king.svg": "1f", "black_rook_2.svg": "1e" });
       setCastlingInfo({
         ...castlingInfo,
         blackKing: true,
@@ -162,6 +164,12 @@ export const handleCastling = (
   setactiveSide(activeSide === "white" ? "black" : "white");
   setactivePiece();
   setCastleAllowedLoc([]);
+  setShowCastleButton({
+    whiteRook1: false,
+    whiteRook2: false,
+    blackRook1: false,
+    blackRook2: false,
+  });
 };
 
 export const doMovementThings = (
@@ -654,6 +662,7 @@ const calculateKingMovement = (
       }
     }
   } else {
+    console.log("entered black side");
     if (castlingInfo.blackKing === false && castlingInfo.blackRook1 === false) {
       const spaceBetweenLeft = ["1b", "1c"];
       const checkCommonMy = myPiecesLocArray.filter((val) =>
@@ -662,7 +671,7 @@ const calculateKingMovement = (
       const checkCommonOpp = oppPiecesLocArray.filter((val) =>
         spaceBetweenLeft.includes(val)
       );
-
+      console.log(checkCommonMy, checkCommonOpp);
       if ([...checkCommonMy, ...checkCommonOpp].length === 0) {
         allowedCastleArray.push("1a");
         castlingButtonState.blackRook1 = true;

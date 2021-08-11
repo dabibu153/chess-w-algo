@@ -12,7 +12,7 @@ export default function Home() {
     whiteKing: false,
     whiteRook1: false,
     whiteRook2: false,
-    balckKing: false,
+    blackKing: false,
     blackRook1: false,
     blackRook2: false,
   });
@@ -33,12 +33,12 @@ export default function Home() {
     "white_pawn_7.svg": "7g",
     "white_pawn_8.svg": "7h",
     "white_rook_1.svg": "8a",
-    "white_horse_1.svg": "6b",
-    "white_bishop_1.svg": "6c",
+    "white_horse_1.svg": "8b",
+    "white_bishop_1.svg": "8c",
     "white_king.svg": "8d",
-    "white_queen.svg": "6e",
-    "white_bishop_2.svg": "6f",
-    "white_horse_2.svg": "6g",
+    "white_queen.svg": "8e",
+    "white_bishop_2.svg": "8f",
+    "white_horse_2.svg": "8g",
     "white_rook_2.svg": "8h",
   });
   const [black, setBlack] = useState({
@@ -51,12 +51,12 @@ export default function Home() {
     "black_pawn_7.svg": "2g",
     "black_pawn_8.svg": "2h",
     "black_rook_1.svg": "1a",
-    "black_horse_1.svg": "3b",
-    "black_bishop_1.svg": "3c",
+    "black_horse_1.svg": "1b",
+    "black_bishop_1.svg": "1c",
     "black_king.svg": "1d",
-    "black_queen.svg": "3e",
-    "black_bishop_2.svg": "3f",
-    "black_horse_2.svg": "3g",
+    "black_queen.svg": "1e",
+    "black_bishop_2.svg": "1f",
+    "black_horse_2.svg": "1g",
     "black_rook_2.svg": "1h",
   });
   const [activePiece, setactivePiece] = useState();
@@ -133,7 +133,7 @@ export default function Home() {
           onClick={() => castle("1a")}
           className={`${
             showCastleButton.blackRook1 === true ? "absolute" : "hidden"
-          } -top-10 -left-6 z-10 `}
+          } -top-10 left-3 z-10 font-bold text-white bg-blue-300 px-2 rounded-lg`}
         >
           CASTLE
         </div>
@@ -141,7 +141,7 @@ export default function Home() {
           onClick={() => castle("1h")}
           className={`${
             showCastleButton.blackRook2 === true ? "absolute" : "hidden"
-          } -top-10 -right-6 z-10`}
+          } -top-10 right-3 z-10 font-bold text-white bg-blue-300 px-2 rounded-lg`}
         >
           CASTLE
         </div>
@@ -149,7 +149,7 @@ export default function Home() {
           onClick={() => castle("8a")}
           className={`${
             showCastleButton.whiteRook1 === true ? "absolute" : "hidden"
-          } -bottom-10 -left-6 z-10 `}
+          } -bottom-10 left-3 z-10 font-bold text-white bg-blue-300 px-2 rounded-lg`}
         >
           CASTLE
         </div>
@@ -157,7 +157,7 @@ export default function Home() {
           onClick={() => castle("8h")}
           className={`${
             showCastleButton.whiteRook2 === true ? "absolute" : "hidden"
-          } -bottom-10 -right-6 z-10 `}
+          } -bottom-10 right-3 z-10 font-bold text-white bg-blue-300 px-2 rounded-lg`}
         >
           CASTLE
         </div>
