@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import {
   calculatePosibleMovementLocations,
+  checkForCheck,
   doMovementThings,
   handleCastling,
 } from "../utility/movementUtility";
@@ -61,12 +62,17 @@ export default function Home() {
   });
   const [activePiece, setactivePiece] = useState();
   const [allowedPos, setallowedPos] = useState([]);
+  const [showCheckDiv, setShowCheckDiv] = useState({
+    black: false,
+    white: false,
+  });
 
   const rows = [1, 2, 3, 4, 5, 6, 7, 8];
   const cols = ["a", "b", "c", "d", "e", "f", "g", "h"];
 
   useEffect(() => {
     updateBoard(white, black);
+    doPostProcessing();
   }, [white, black]);
 
   const castle = (rookPos) => {
@@ -121,13 +127,32 @@ export default function Home() {
         setallowedPos,
         setactivePiece,
         castlingInfo,
-        setCastlingInfo
+        setCastlingInfo,
+        setCastleAllowedLoc,
+        setShowCastleButton
       );
     }
+  };
+  const doPostProcessing = () => {
+    checkForCheck(activeSide, white, black, castlingInfo);
   };
 
   return (
     <div className="h-screen w-screen flex items-center justify-center">
+      <div
+        className={`${
+          showCheckDiv.black ? "fixed" : "hidden"
+        } top-0 right-0 m-5 bg-red-300 px-2 font-bold text-xl rounded-lg`}
+      >
+        Black King Check
+      </div>
+      <div
+        className={`${
+          showCheckDiv.white ? "fixed" : "hidden"
+        } bottom-0 right-0 m-5 bg-red-300 px-2 font-bold text-xl rounded-lg`}
+      >
+        White King Check
+      </div>
       <div className="flex relative">
         <div
           onClick={() => castle("1a")}
