@@ -1,11 +1,6 @@
 const rows = [1, 2, 3, 4, 5, 6, 7, 8];
 const cols = ["a", "b", "c", "d", "e", "f", "g", "h"];
 
-//check check flow for king,
-//white makes a move causing chedck (process all pieces of white after each move to see if any piece is capable of attacking black's king)
-//black's time to move
-//as black attempts to move, recheck if any of the white pieces are capable of
-
 export const calculatePosibleMovementLocations = (
   current,
   activeSide,
@@ -53,7 +48,6 @@ export const calculatePosibleMovementLocations = (
       oppPiecesLocArray,
       castlingInfo
     );
-    console.log(rookMovementResp);
     setallowedPos(rookMovementResp.allowedPosArray);
     setCastleAllowedLoc(rookMovementResp.allowedCastlingLocArray);
     setShowCastleButton(rookMovementResp.castlingButtonState);
@@ -192,7 +186,9 @@ export const doMovementThings = (
   castlingInfo,
   setCastlingInfo,
   setCastleAllowedLoc,
-  setShowCastleButton
+  setShowCastleButton,
+  refresh,
+  setRefresh
 ) => {
   if (allowedPos.includes(id)) {
     const mySideObj = activeSide === "white" ? white : black;
@@ -201,27 +197,47 @@ export const doMovementThings = (
     const myPieces = Object.keys(mySideObj);
     const oppPos = Object.values(oppSideObj);
     const oppPieces = Object.keys(oppSideObj);
-    if (oppPos.includes(id)) {
-      const oppTargetPieceIndex = oppPos.findIndex((val) => val === id);
-      const oppTargetPieceName = oppPieces[oppTargetPieceIndex];
-      if (activeSide === "white") {
-        const blackCopy = black;
-        delete blackCopy[oppTargetPieceName];
-        console.log(blackCopy);
-        setBlack(blackCopy);
-      } else {
-        const whiteCopy = white;
-        delete whiteCopy[oppTargetPieceName];
-        setWhite(whiteCopy);
-      }
-    }
     const myTargetPieceIndex = myPos.findIndex((val) => val === activePiece);
     const myTargetPieceName = myPieces[myTargetPieceIndex];
+    const whiteCopy = white;
+    const blackCopy = black;
+    const oppTargetPieceIndex = oppPos.findIndex((val) => val === id);
+    const oppTargetPieceName = oppPieces[oppTargetPieceIndex];
+    let continueExecution = true;
     if (activeSide === "white") {
-      setWhite({ ...white, [myTargetPieceName]: id });
+      if (oppPos.includes(id)) delete blackCopy[oppTargetPieceName];
+      whiteCopy[myTargetPieceName] = id;
+      const myKingUnderCheck = checkForCheck(
+        "white",
+        whiteCopy,
+        blackCopy,
+        castlingInfo
+      );
+      if (myKingUnderCheck === false) {
+        setBlack(blackCopy);
+        setWhite(whiteCopy);
+        setRefresh(!refresh);
+      } else {
+        continueExecution = false;
+      }
     } else {
-      setBlack({ ...black, [myTargetPieceName]: id });
+      if (oppPos.includes(id)) delete whiteCopy[oppTargetPieceName];
+      blackCopy[myTargetPieceName] = id;
+      const myKingUnderCheck = checkForCheck(
+        "black",
+        whiteCopy,
+        blackCopy,
+        castlingInfo
+      );
+      if (myKingUnderCheck === false) {
+        setBlack(blackCopy);
+        setWhite(whiteCopy);
+        setRefresh(!refresh);
+      } else {
+        continueExecution = false;
+      }
     }
+    if (!continueExecution) return;
     switch (myTargetPieceName.split(".")[0]) {
       case "white_king":
         setCastlingInfo({ ...castlingInfo, whiteKing: true });
@@ -257,30 +273,28 @@ export const doMovementThings = (
   }
 };
 
-export const checkForCheck = (activeSide, white, black, castlingInfo) => {
-  console.log(activeSide, white);
+export const checkForCheck = (targetSide, white, black, castlingInfo) => {
   let isKingUnderCheck = false;
-  const oppKingPos =
-    activeSide === "white" ? white["white_king.svg"] : black["black_king.svg"];
+  const targetKingPos =
+    targetSide === "white" ? white["white_king.svg"] : black["black_king.svg"];
   const myPiecesLocArray = Object.values(
-    activeSide === "white" ? black : white
+    targetSide === "white" ? black : white
   );
-  const myPiecesNameArray = Object.keys(activeSide === "white" ? black : white);
+  const myPiecesNameArray = Object.keys(targetSide === "white" ? black : white);
   const oppPiecesLocArray = Object.values(
-    activeSide === "white" ? white : black
+    targetSide === "white" ? white : black
   );
-  const previousActiveSide = activeSide === "white" ? "black" : "white";
   for (const myPiece of myPiecesNameArray) {
-    const myPieceLoc =
-      previousActiveSide === "white" ? white[myPiece] : black[myPiece];
+    const reverseTargetSide = targetSide === "white" ? "black" : "white";
+    const myPieceLoc = targetSide === "white" ? black[myPiece] : white[myPiece];
     if (myPiece.split("_")[1] === "pawn") {
       const finalAllowedPos = calculatePawnMovement(
-        previousActiveSide,
+        reverseTargetSide,
         myPieceLoc,
         myPiecesLocArray,
         oppPiecesLocArray
       );
-      if (finalAllowedPos.includes(oppKingPos)) {
+      if (finalAllowedPos.includes(targetKingPos)) {
         isKingUnderCheck = true;
       }
     } else if (myPiece.split("_")[1] === "horse") {
@@ -288,19 +302,19 @@ export const checkForCheck = (activeSide, white, black, castlingInfo) => {
         myPieceLoc,
         myPiecesLocArray
       );
-      if (finalAllowedPos.includes(oppKingPos)) {
+      if (finalAllowedPos.includes(targetKingPos)) {
         isKingUnderCheck = true;
       }
     } else if (myPiece.split("_")[1] === "rook") {
       const rookMovementResp = calculateRookMovement(
         myPieceLoc,
-        previousActiveSide,
+        reverseTargetSide,
         myPiece,
         myPiecesLocArray,
         oppPiecesLocArray,
         castlingInfo
       );
-      if (rookMovementResp.allowedPosArray.includes(oppKingPos)) {
+      if (rookMovementResp.allowedPosArray.includes(targetKingPos)) {
         isKingUnderCheck = true;
       }
     } else if (myPiece.split("_")[1] === "bishop") {
@@ -309,25 +323,25 @@ export const checkForCheck = (activeSide, white, black, castlingInfo) => {
         myPiecesLocArray,
         oppPiecesLocArray
       );
-      if (finalAllowedPos.includes(oppKingPos)) {
+      if (finalAllowedPos.includes(targetKingPos)) {
         isKingUnderCheck = true;
       }
     } else if (myPiece.split("_")[1] === "king.svg") {
       const kingResponse = calculateKingMovement(
         myPieceLoc,
-        previousActiveSide,
+        reverseTargetSide,
         myPiecesLocArray,
         oppPiecesLocArray,
         castlingInfo
       );
-      if (kingResponse.allowedPosArray.includes(oppKingPos)) {
+      if (kingResponse.allowedPosArray.includes(targetKingPos)) {
         isKingUnderCheck = true;
       }
     } else if (myPiece.split("_")[1] === "queen.svg") {
       const finalAllowedPos = [
         ...calculateRookMovement(
           myPieceLoc,
-          previousActiveSide,
+          reverseTargetSide,
           myPiece,
           myPiecesLocArray,
           oppPiecesLocArray,
@@ -339,12 +353,12 @@ export const checkForCheck = (activeSide, white, black, castlingInfo) => {
           oppPiecesLocArray
         ),
       ];
-      if (finalAllowedPos.includes(oppKingPos)) {
+      if (finalAllowedPos.includes(targetKingPos)) {
         isKingUnderCheck = true;
       }
     }
   }
-  console.log("is king under ");
+  return isKingUnderCheck;
 };
 
 const findPieceData = (current, allPositionsObj) => {
@@ -409,7 +423,6 @@ const calculatePawnMovement = (
   ) {
     allowedPosArray.push(`${Number(current[0]) + 2}${current[1]}`);
   }
-  console.log(allowedPosArray);
   return allowedPosArray;
 };
 
@@ -528,9 +541,7 @@ const calculateRookMovement = (
         const checkCommonOpp = oppPiecesLocArray.filter((val) =>
           spaceBetweenLeft.includes(val)
         );
-        console.log(checkCommonMy, checkCommonOpp);
         if ([...checkCommonMy, ...checkCommonOpp].length === 0) {
-          console.log("got this");
           allowedCastlingLocArray.push("8d");
           castlingButtonState.whiteRook1 = true;
         }
@@ -597,7 +608,6 @@ const calculateRookMovement = (
     default:
       break;
   }
-  console.log("insidefun", allowedCastlingLocArray);
   return { allowedPosArray, allowedCastlingLocArray, castlingButtonState };
 };
 
@@ -766,7 +776,6 @@ const calculateKingMovement = (
       }
     }
   } else {
-    console.log("entered black side");
     if (castlingInfo.blackKing === false && castlingInfo.blackRook1 === false) {
       const spaceBetweenLeft = ["1b", "1c"];
       const checkCommonMy = myPiecesLocArray.filter((val) =>
@@ -775,7 +784,6 @@ const calculateKingMovement = (
       const checkCommonOpp = oppPiecesLocArray.filter((val) =>
         spaceBetweenLeft.includes(val)
       );
-      console.log(checkCommonMy, checkCommonOpp);
       if ([...checkCommonMy, ...checkCommonOpp].length === 0) {
         allowedCastleArray.push("1a");
         castlingButtonState.blackRook1 = true;

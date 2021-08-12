@@ -37,7 +37,7 @@ export default function Home() {
     "white_horse_1.svg": "8b",
     "white_bishop_1.svg": "8c",
     "white_king.svg": "8d",
-    "white_queen.svg": "8e",
+    "white_queen.svg": "6e",
     "white_bishop_2.svg": "8f",
     "white_horse_2.svg": "8g",
     "white_rook_2.svg": "8h",
@@ -46,8 +46,8 @@ export default function Home() {
     "black_pawn_1.svg": "2a",
     "black_pawn_2.svg": "2b",
     "black_pawn_3.svg": "2c",
-    "black_pawn_4.svg": "2d",
-    "black_pawn_5.svg": "2e",
+    "black_pawn_4.svg": "3e",
+    "black_pawn_5.svg": "6d",
     "black_pawn_6.svg": "2f",
     "black_pawn_7.svg": "2g",
     "black_pawn_8.svg": "2h",
@@ -66,14 +66,14 @@ export default function Home() {
     black: false,
     white: false,
   });
+  const [refresh, setRefresh] = useState(true);
 
   const rows = [1, 2, 3, 4, 5, 6, 7, 8];
   const cols = ["a", "b", "c", "d", "e", "f", "g", "h"];
 
   useEffect(() => {
     updateBoard(white, black);
-    doPostProcessing();
-  }, [white, black]);
+  }, [white, black, refresh]);
 
   const castle = (rookPos) => {
     handleCastling(
@@ -129,12 +129,11 @@ export default function Home() {
         castlingInfo,
         setCastlingInfo,
         setCastleAllowedLoc,
-        setShowCastleButton
+        setShowCastleButton,
+        refresh,
+        setRefresh
       );
     }
-  };
-  const doPostProcessing = () => {
-    checkForCheck(activeSide, white, black, castlingInfo);
   };
 
   return (
