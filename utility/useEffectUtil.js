@@ -1,4 +1,9 @@
-export const updateBoard = (white, black, setEligibleForPro) => {
+export const updateBoard = (
+  white,
+  black,
+  setEligibleForPro,
+  setShowPromotionDiv
+) => {
   const rows = [1, 2, 3, 4, 5, 6, 7, 8];
   const cols = ["a", "b", "c", "d", "e", "f", "g", "h"];
   const pieceName = [...Object.keys(white), ...Object.keys(black)];
@@ -16,6 +21,7 @@ export const updateBoard = (white, black, setEligibleForPro) => {
     }
   }
   const eligibleLocArray = checkForPromotions(white, black);
+  if (eligibleLocArray.length > 0) setShowPromotionDiv(true);
   setEligibleForPro(eligibleLocArray);
 };
 

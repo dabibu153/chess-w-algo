@@ -300,6 +300,100 @@ export const doMovementThings = (
   }
 };
 
+export const handlePromotions = (
+  selectedPromotion,
+  target,
+  activeSide,
+  targetSide,
+  setTargetSide,
+  promotionsAdded,
+  setPromotionsAdded
+) => {
+  switch (selectedPromotion) {
+    case "rook":
+      const pawnName = findPieceData(target, targetSide);
+      let targetCopy = targetSide;
+      delete targetCopy[pawnName];
+      targetCopy = {
+        ...targetCopy,
+        [`${targetSide + `_rook_${3 + promotionsAdded[activeSide].rook}.svg`}`]:
+          target,
+      };
+      setPromotionsAdded({
+        ...promotionsAdded,
+        [activeSide]: {
+          ...[activeSide],
+          rook: promotionsAdded[activeSide].rook + 1,
+        },
+      });
+      setTargetSide(targetCopy);
+      break;
+
+    case "bishop":
+      const pawnName = findPieceData(target, targetSide);
+      let targetCopy = targetSide;
+      delete targetCopy[pawnName];
+      targetCopy = {
+        ...targetCopy,
+        [`${
+          targetSide + `_bishop_${3 + promotionsAdded[activeSide].bishop}.svg`
+        }`]: target,
+      };
+      setPromotionsAdded({
+        ...promotionsAdded,
+        [activeSide]: {
+          ...[activeSide],
+          rook: promotionsAdded[activeSide].bishop + 1,
+        },
+      });
+      setTargetSide(targetCopy);
+      break;
+
+    case "horse":
+      const pawnName = findPieceData(target, targetSide);
+      let targetCopy = targetSide;
+      delete targetCopy[pawnName];
+      targetCopy = {
+        ...targetCopy,
+        [`${
+          targetSide + `_horse_${3 + promotionsAdded[activeSide].horse}.svg`
+        }`]: target,
+      };
+      setPromotionsAdded({
+        ...promotionsAdded,
+        [activeSide]: {
+          ...[activeSide],
+          rook: promotionsAdded[activeSide].horse + 1,
+        },
+      });
+      setTargetSide(targetCopy);
+      break;
+
+    case "queen":
+      const pawnName = findPieceData(target, targetSide);
+      let targetCopy = targetSide;
+      delete targetCopy[pawnName];
+      targetCopy = {
+        ...targetCopy,
+        [`${
+          targetSide + `_queen.${1 + promotionsAdded[activeSide].queen}.svg`
+        }`]: target,
+      };
+      setPromotionsAdded({
+        ...promotionsAdded,
+        [activeSide]: {
+          ...[activeSide],
+          rook: promotionsAdded[activeSide].queen + 1,
+        },
+      });
+      setTargetSide(targetCopy);
+      break;
+
+    default:
+      break;
+  }
+};
+
 export const checkForCheck = (targetSide, white, black, castlingInfo) => {
   let isKingUnderCheck = false;
   const targetKingPos =

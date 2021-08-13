@@ -3,6 +3,7 @@ import {
   calculatePosibleMovementLocations,
   doMovementThings,
   handleCastling,
+  handlePromotions,
 } from "../utility/movementUtility";
 import { updateBoard } from "../utility/useEffectUtil";
 
@@ -69,12 +70,17 @@ export default function Home() {
     blackLoc: undefined,
   });
   const [refresh, setRefresh] = useState(true);
+  const [showPromotionDiv, setShowPromotionDiv] = useState(false);
+  const [promotionsAdded, setPromotionsAdded] = useState({
+    black: { rook: 0, bishop: 0, horse: 0, queen: 0 },
+    white: { rook: 0, bishop: 0, horse: 0, queen: 0 },
+  });
 
   const rows = [1, 2, 3, 4, 5, 6, 7, 8];
   const cols = ["a", "b", "c", "d", "e", "f", "g", "h"];
 
   useEffect(() => {
-    updateBoard(white, black, setEligibleForPro);
+    updateBoard(white, black, setEligibleForPro, setShowPromotionDiv);
   }, [white, black, refresh]);
 
   const castle = (rookPos) => {
@@ -97,6 +103,9 @@ export default function Home() {
   };
 
   const boardClicked = (id) => {
+    eligibleForPro.includes(id)
+      ? setShowPromotionDiv(true)
+      : setShowPromotionDiv(false);
     const allPiecePosArray = Object.values(
       activeSide === "white" ? white : black
     );
@@ -138,6 +147,16 @@ export default function Home() {
       );
     }
   };
+
+  const promotionArray = [
+    { name: "rook", imageArray: ["white_rook_1.svg", "black_rook_1.svg"] },
+    {
+      name: "bishop",
+      imageArray: ["white_bishop_1.svg", "black_bishop_1.svg"],
+    },
+    { name: "horse", imageArray: ["white_horse_1.svg", "black_horse_1.svg"] },
+    { name: "queen", imageArray: ["white_queen.svg", "black_queen.svg"] },
+  ];
 
   return (
     <div className="h-screen w-screen flex items-center justify-center">
@@ -233,6 +252,46 @@ export default function Home() {
           </div>
         ))}
       </div>
+      <div className={`${showPromotionDiv ? "fixed" : "hidden"} right-0`}>
+        <div>Select Piece</div>
+        <div className="flex flex-col">
+          {promotionArray.map((onePiece) => (
+            <div
+              onClick={() =>
+                handlePromotions(
+                  onePiece.name,
+                  activePiece,
+                  activeSide,
+                  activeSide === "white" ? white : black,
+                  activeSide === "white" ? setWhite : setBlack,
+                  promotionsAdded,
+                  setPromotionsAdded
+                )
+              }
+            >
+              <div>{onePiece.toUpperCase()}</div>
+              <img
+                className="h-8 w-8"
+                src={onePiece.imageArray[0]}
+                alt="rook"
+              />{" "}
+              /{" "}
+              <img
+                className="h-8 w-8"
+                src={onePiece.imageArray[1]}
+                alt="rook"
+              />
+            </div>
+          ))}
+        </div>
+      </div>
     </div>
   );
 }
+
+// pawn reaches other end
+//pawn gets a purple glow
+//side rotation happens
+//if the same pawn in selected: promotion div becomes visible
+//select a upgrade
+//change of side?? (needs research)
