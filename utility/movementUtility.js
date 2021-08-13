@@ -188,7 +188,9 @@ export const doMovementThings = (
   setCastleAllowedLoc,
   setShowCastleButton,
   refresh,
-  setRefresh
+  setRefresh,
+  showCheckDiv,
+  setShowCheckDiv
 ) => {
   if (allowedPos.includes(id)) {
     const mySideObj = activeSide === "white" ? white : black;
@@ -213,10 +215,17 @@ export const doMovementThings = (
         blackCopy,
         castlingInfo
       );
+      const oppKingUnderCheck = checkForCheck(
+        "black",
+        whiteCopy,
+        blackCopy,
+        castlingInfo
+      );
       if (myKingUnderCheck === false) {
         setBlack(blackCopy);
         setWhite(whiteCopy);
         setRefresh(!refresh);
+        setShowCheckDiv({ black: oppKingUnderCheck, white: myKingUnderCheck });
       } else {
         continueExecution = false;
       }
@@ -229,10 +238,17 @@ export const doMovementThings = (
         blackCopy,
         castlingInfo
       );
+      const oppKingUnderCheck = checkForCheck(
+        "white",
+        whiteCopy,
+        blackCopy,
+        castlingInfo
+      );
       if (myKingUnderCheck === false) {
         setBlack(blackCopy);
         setWhite(whiteCopy);
         setRefresh(!refresh);
+        setShowCheckDiv({ white: oppKingUnderCheck, black: myKingUnderCheck });
       } else {
         continueExecution = false;
       }

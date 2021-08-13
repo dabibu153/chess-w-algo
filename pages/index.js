@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
 import {
   calculatePosibleMovementLocations,
-  checkForCheck,
   doMovementThings,
   handleCastling,
 } from "../utility/movementUtility";
@@ -131,7 +130,9 @@ export default function Home() {
         setCastleAllowedLoc,
         setShowCastleButton,
         refresh,
-        setRefresh
+        setRefresh,
+        showCheckDiv,
+        setShowCheckDiv
       );
     }
   };
