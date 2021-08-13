@@ -22,6 +22,7 @@ export default function Home() {
     blackRook1: false,
     blackRook2: false,
   });
+  const [eligibleForPro, setEligibleForPro] = useState([]);
   const [castleAllowedLoc, setCastleAllowedLoc] = useState([]);
   const [white, setWhite] = useState({
     "white_pawn_1.svg": "7a",
@@ -64,6 +65,8 @@ export default function Home() {
   const [showCheckDiv, setShowCheckDiv] = useState({
     black: false,
     white: false,
+    whiteLoc: undefined,
+    blackLoc: undefined,
   });
   const [refresh, setRefresh] = useState(true);
 
@@ -71,7 +74,7 @@ export default function Home() {
   const cols = ["a", "b", "c", "d", "e", "f", "g", "h"];
 
   useEffect(() => {
-    updateBoard(white, black);
+    updateBoard(white, black, setEligibleForPro);
   }, [white, black, refresh]);
 
   const castle = (rookPos) => {
@@ -131,7 +134,6 @@ export default function Home() {
         setShowCastleButton,
         refresh,
         setRefresh,
-        showCheckDiv,
         setShowCheckDiv
       );
     }
@@ -144,14 +146,14 @@ export default function Home() {
           showCheckDiv.black ? "fixed" : "hidden"
         } top-0 right-0 m-5 bg-red-300 px-2 font-bold text-xl rounded-lg`}
       >
-        Black King Check
+        Black King Under Check
       </div>
       <div
         className={`${
           showCheckDiv.white ? "fixed" : "hidden"
         } bottom-0 right-0 m-5 bg-red-300 px-2 font-bold text-xl rounded-lg`}
       >
-        White King Check
+        White King Under Check
       </div>
       <div className="flex relative">
         <div
@@ -211,6 +213,17 @@ export default function Home() {
                   } ${
                     castleAllowedLoc.includes(`${rowVal + colVal}`)
                       ? "bg-green-200 border-3 border-white"
+                      : ""
+                  }
+                  ${
+                    rowVal + colVal === showCheckDiv.whiteLoc ||
+                    rowVal + colVal === showCheckDiv.blackLoc
+                      ? "bg-yellow-200"
+                      : ""
+                  }
+                  ${
+                    eligibleForPro.includes(rowVal + colVal)
+                      ? "bg-purple-300"
                       : ""
                   }`}
                   id={`${rowVal + colVal}`}

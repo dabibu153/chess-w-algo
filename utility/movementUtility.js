@@ -189,7 +189,6 @@ export const doMovementThings = (
   setShowCastleButton,
   refresh,
   setRefresh,
-  showCheckDiv,
   setShowCheckDiv
 ) => {
   if (allowedPos.includes(id)) {
@@ -225,7 +224,12 @@ export const doMovementThings = (
         setBlack(blackCopy);
         setWhite(whiteCopy);
         setRefresh(!refresh);
-        setShowCheckDiv({ black: oppKingUnderCheck, white: myKingUnderCheck });
+        setShowCheckDiv({
+          black: oppKingUnderCheck,
+          white: myKingUnderCheck,
+          whiteLoc: myKingUnderCheck ? whiteCopy["white_king.svg"] : undefined,
+          blackLoc: oppKingUnderCheck ? blackCopy["black_king.svg"] : undefined,
+        });
       } else {
         continueExecution = false;
       }
@@ -248,12 +252,19 @@ export const doMovementThings = (
         setBlack(blackCopy);
         setWhite(whiteCopy);
         setRefresh(!refresh);
-        setShowCheckDiv({ white: oppKingUnderCheck, black: myKingUnderCheck });
+        setShowCheckDiv({
+          white: oppKingUnderCheck,
+          black: myKingUnderCheck,
+          whiteLoc: oppKingUnderCheck ? whiteCopy["white_king.svg"] : undefined,
+          blackLoc: myKingUnderCheck ? blackCopy["black_king.svg"] : undefined,
+        });
       } else {
         continueExecution = false;
       }
     }
     if (!continueExecution) return;
+    console.log("latest state of pieces", whiteCopy, blackCopy);
+
     switch (myTargetPieceName.split(".")[0]) {
       case "white_king":
         setCastlingInfo({ ...castlingInfo, whiteKing: true });

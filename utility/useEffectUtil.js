@@ -1,4 +1,4 @@
-export const updateBoard = (white, black) => {
+export const updateBoard = (white, black, setEligibleForPro) => {
   const rows = [1, 2, 3, 4, 5, 6, 7, 8];
   const cols = ["a", "b", "c", "d", "e", "f", "g", "h"];
   const pieceName = [...Object.keys(white), ...Object.keys(black)];
@@ -15,4 +15,25 @@ export const updateBoard = (white, black) => {
       }
     }
   }
+  const eligibleLocArray = checkForPromotions(whiteCopy, blackCopy);
+  setEligibleForPro(eligibleLocArray);
+};
+
+const checkForPromotions = (white, black) => {
+  let eligiblePosArray = [];
+  const whiteNameArray = Object.keys(white);
+  const blackNameArray = Object.keys(black);
+  whiteNameArray.forEach((val) => {
+    const loc = white[val];
+    if (val.split("_")[1] === "pawn" && loc[0] === "1") {
+      eligiblePosArray.push(white[val]);
+    }
+  });
+  blackNameArray.forEach((val) => {
+    const loc = black[val];
+    if (val.split("_")[1] === "pawn" && loc[0] === "8") {
+      eligiblePosArray.push(black[val]);
+    }
+  });
+  return eligiblePosArray;
 };
