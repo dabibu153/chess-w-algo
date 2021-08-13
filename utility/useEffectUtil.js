@@ -15,7 +15,7 @@ export const updateBoard = (white, black, setEligibleForPro) => {
       }
     }
   }
-  const eligibleLocArray = checkForPromotions(whiteCopy, blackCopy);
+  const eligibleLocArray = checkForPromotions(white, black);
   setEligibleForPro(eligibleLocArray);
 };
 
