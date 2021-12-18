@@ -299,7 +299,7 @@ export const doMovementThings = (
     });
   }
 };
-
+//this commment was added with github web editor
 export const handlePromotions = (
   selectedPromotion,
   target,
