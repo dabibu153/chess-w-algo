@@ -100,7 +100,8 @@ export default function Home() {
         activeSide,
         white,
         black,
-        setallowedPos
+        setallowedPos,
+        moveCount
       );
     } else {
       doMovementThings(
@@ -158,57 +159,51 @@ export default function Home() {
   return (
     <div className="h-screen w-screen flex items-center justify-center">
       <div
-        className={`${
-          blackKingCheck ? "fixed" : "hidden"
-        } top-0 right-0 m-5 bg-red-300 px-2 font-bold text-xl rounded-lg`}
+        className={`${blackKingCheck ? "fixed" : "hidden"
+          } top-0 right-0 m-5 bg-red-300 px-2 font-bold text-xl rounded-lg`}
       >
         Black King Under Check
       </div>
       <div
-        className={`${
-          whiteKingCheck ? "fixed" : "hidden"
-        } bottom-0 right-0 m-5 bg-red-300 px-2 font-bold text-xl rounded-lg`}
+        className={`${whiteKingCheck ? "fixed" : "hidden"
+          } bottom-0 right-0 m-5 bg-red-300 px-2 font-bold text-xl rounded-lg`}
       >
         White King Under Check
       </div>
       <div className="flex relative">
         <div
           onClick={() => castle("blackLeft")}
-          className={`${
-            castlingInfo.blackLeft && activeSide === "black"
+          className={`${castlingInfo.blackLeft && activeSide === "black"
               ? "absolute"
               : "hidden"
-          } -top-10 left-3 z-10 font-bold text-white bg-blue-300 px-2 rounded-lg cursor-pointer	`}
+            } -top-10 left-3 z-10 font-bold text-white bg-blue-300 px-2 rounded-lg cursor-pointer	`}
         >
           CASTLE
         </div>
         <div
           onClick={() => castle("blackRight")}
-          className={`${
-            castlingInfo.blackRight && activeSide === "black"
+          className={`${castlingInfo.blackRight && activeSide === "black"
               ? "absolute"
               : "hidden"
-          } -top-10 right-3 z-10 font-bold text-white bg-blue-300 px-2 rounded-lg cursor-pointer	`}
+            } -top-10 right-3 z-10 font-bold text-white bg-blue-300 px-2 rounded-lg cursor-pointer	`}
         >
           CASTLE
         </div>
         <div
           onClick={() => castle("whiteLeft")}
-          className={`${
-            castlingInfo.whiteLeft && activeSide === "white"
+          className={`${castlingInfo.whiteLeft && activeSide === "white"
               ? "absolute"
               : "hidden"
-          } -bottom-10 left-3 z-10 font-bold text-white bg-blue-300 px-2 rounded-lg cursor-pointer	`}
+            } -bottom-10 left-3 z-10 font-bold text-white bg-blue-300 px-2 rounded-lg cursor-pointer	`}
         >
           CASTLE
         </div>
         <div
           onClick={() => castle("whiteRight")}
-          className={`${
-            castlingInfo.whiteRight && activeSide === "white"
+          className={`${castlingInfo.whiteRight && activeSide === "white"
               ? "absolute"
               : "hidden"
-          } -bottom-10 right-3 z-10 font-bold text-white bg-blue-300 px-2 rounded-lg cursor-pointer	`}
+            } -bottom-10 right-3 z-10 font-bold text-white bg-blue-300 px-2 rounded-lg cursor-pointer	`}
         >
           CASTLE
         </div>
@@ -216,25 +211,22 @@ export default function Home() {
           <div className="flex flex-col bg-blue-100">
             {rows.map((rowVal, rowIndex) => (
               <div
-                className={`relative h-24 w-24 ${
-                  rowIndex % 2 === 0 && colIndex % 2 === 0 ? "bg-blue-300" : ""
-                } 
+                className={`relative h-24 w-24 ${rowIndex % 2 === 0 && colIndex % 2 === 0 ? "bg-blue-300" : ""
+                  } 
               ${rowIndex % 2 !== 0 && colIndex % 2 !== 0 ? "bg-blue-300" : ""} 
-               ${
-                 activePiece === "" + rowVal + colVal
-                   ? "border border-3 border-red-500"
-                   : ""
-               } flex`}
+               ${activePiece === "" + rowVal + colVal
+                    ? "border border-3 border-red-500"
+                    : ""
+                  } flex`}
               >
                 <div
                   onClick={() => {
                     boardClicked("" + rowVal + colVal);
                   }}
-                  className={` flex items-center justify-center h-full w-full ${
-                    allowedPos.includes("" + rowVal + colVal)
+                  className={` flex items-center justify-center h-full w-full ${allowedPos.includes("" + rowVal + colVal)
                       ? "bg-red-200 border border-3 border-white"
                       : ""
-                  } 
+                    } 
                   `}
                   id={"" + rowVal + colVal}
                 ></div>
@@ -266,9 +258,8 @@ export default function Home() {
                     >
                       <img
                         className="h-20 w-20"
-                        src={`/assets/${
-                          activeSide === "white" ? "black" : "white"
-                        }_${obj}.svg`}
+                        src={`/assets/${activeSide === "white" ? "black" : "white"
+                          }_${obj}.svg`}
                         alt={obj}
                       />
                     </div>

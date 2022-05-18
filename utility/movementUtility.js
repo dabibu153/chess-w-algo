@@ -3,7 +3,8 @@ export const calculatePosibleMovementLocations = (
   activeSide,
   white,
   black,
-  setallowedPos
+  setallowedPos,
+  moveCount
 ) => {
   const opponents = activeSide === "white" ? black : white;
   const me = activeSide === "white" ? white : black;
@@ -23,7 +24,10 @@ export const calculatePosibleMovementLocations = (
       activeSide,
       current,
       myPiecesLocArray,
-      oppPiecesLocArray
+      oppPiecesLocArray,
+      white,
+      black,
+      moveCount
     );
     setallowedPos(finalAllowedPos);
   } else if (myPiece === "horse") {
@@ -313,7 +317,7 @@ export const doMovementThings = (
         activePiece[0] === "1" &&
         id[0] === "3"
       ) {
-        for (const onePiece of whiteCopy) {
+        for (const onePiece of blackCopy) {
           if (onePiece.position === id) onePiece.doubleCount = moveCount;
         }
       }
@@ -341,12 +345,14 @@ export const doMovementThings = (
     const willWhiteKingBeUnderCheck = checkIfKingUnderCheck(
       "white",
       whiteCopy,
-      blackCopy
+      blackCopy,
+      moveCount + 1
     );
     const willBlackKingBeUnderCheck = checkIfKingUnderCheck(
       "black",
       whiteCopy,
-      blackCopy
+      blackCopy,
+      moveCount + 1
     );
 
     setWhiteKingCheck(willWhiteKingBeUnderCheck);
@@ -401,9 +407,8 @@ export const handlePromotions = (
       delete targetCopy[pawnName];
       targetCopy = {
         ...targetCopy,
-        [`${
-          targetSide + `_bishop_${3 + promotionsAdded[activeSide].bishop}.svg`
-        }`]: target,
+        [`${targetSide + `_bishop_${3 + promotionsAdded[activeSide].bishop}.svg`
+          }`]: target,
       };
       setPromotionsAdded({
         ...promotionsAdded,
@@ -421,9 +426,8 @@ export const handlePromotions = (
       delete targetCopy[pawnName];
       targetCopy = {
         ...targetCopy,
-        [`${
-          targetSide + `_horse_${3 + promotionsAdded[activeSide].horse}.svg`
-        }`]: target,
+        [`${targetSide + `_horse_${3 + promotionsAdded[activeSide].horse}.svg`
+          }`]: target,
       };
       setPromotionsAdded({
         ...promotionsAdded,
@@ -441,9 +445,8 @@ export const handlePromotions = (
       delete targetCopy[pawnName];
       targetCopy = {
         ...targetCopy,
-        [`${
-          targetSide + `_queen.${1 + promotionsAdded[activeSide].queen}.svg`
-        }`]: target,
+        [`${targetSide + `_queen.${1 + promotionsAdded[activeSide].queen}.svg`
+          }`]: target,
       };
       setPromotionsAdded({
         ...promotionsAdded,
@@ -491,7 +494,10 @@ const checkIfKingUnderCheck = (checkSide, white, black) => {
         activeSide,
         current,
         myArray,
-        oppArray
+        oppArray,
+        white,
+        black,
+
       );
       if (finalAllowedPos.includes(kingCurrentPosition)) {
         kingUnderCheck = true;
@@ -549,7 +555,10 @@ const calculatePawnMovement = (
   activeSide,
   current,
   myPiecesLocArray,
-  oppPiecesLocArray
+  oppPiecesLocArray,
+  white,
+  black,
+  moveCount
 ) => {
   const rowMovementDirection = activeSide === "white" ? -1 : +1;
   const allowedPosArray = [];
@@ -600,7 +609,50 @@ const calculatePawnMovement = (
   ) {
     allowedPosArray.push(`${Number(current[0]) + 2}${current[1]}`);
   }
-  return allowedPosArray;
+  const allPosArray = [...oppPiecesLocArray, ...myPiecesLocArray];
+  let specialMoveSpot;
+  if (activeSide === "white") {
+    //check right
+    const targetPawnRight = black.find(obj =>
+      obj.piece === "pawn" && obj.position === `${current[0]}${Number(current[1]) + 1}` && obj.doubleCount === moveCount - 1
+    );
+    console.log(targetPawnRight)
+    if (targetPawnRight) {
+      if (!allPosArray.includes(`${Number(current[0]) - 1}${Number(current[1]) + 1}`)) {
+        specialMoveSpot = `${Number(current[0]) - 1}${Number(current[1]) + 1}`;
+      }
+    }
+    //check left
+    const targetPawnLeft = black.find(obj =>
+      obj.piece === "pawn" && obj.position === `${current[0]}${Number(current[1]) - 1}` && obj.doubleCount === moveCount - 1
+    );
+    if (targetPawnLeft) {
+      if (!allPosArray.includes(`${Number(current[0]) - 1}${Number(current[1]) - 1}`)) {
+        specialMoveSpot = `${Number(current[0]) - 1}${Number(current[1]) - 1}`;
+      }
+    }
+  }
+  if (activeSide === "black") {
+    //check right
+    const targetPawnRight = white.find(obj =>
+      obj.piece === "pawn" && obj.position === `${current[0]}${Number(current[1]) + 1}` && obj.doubleCount === moveCount - 1
+    );
+    if (targetPawnRight) {
+      if (!allPosArray.includes(`${Number(current[0]) + 1}${Number(current[1]) + 1}`)) {
+        specialMoveSpot = `${Number(current[0]) + 1}${Number(current[1]) + 1}`;
+      }
+    }
+    //check left
+    const targetPawnLeft = white.find(obj =>
+      obj.piece === "pawn" && obj.position === `${current[0]}${Number(current[1]) - 1}` && obj.doubleCount === moveCount - 1
+    );
+    if (targetPawnLeft) {
+      if (!allPosArray.includes(`${Number(current[0]) + 1}${Number(current[1]) - 1}`)) {
+        specialMoveSpot = `${Number(current[0]) + 1}${Number(current[1]) - 1}`;
+      }
+    }
+  }
+  return { allowedPosArray, specialMoveSpot };
 };
 
 const calculateHorseMovement = (current, myPiecesLocArray) => {
@@ -615,9 +667,8 @@ const calculateHorseMovement = (current, myPiecesLocArray) => {
     [-1, -2],
   ];
   const calculateNewPosFromOld = (current, movementArray) => {
-    return `${Number(current[0]) + movementArray[0]}${
-      Number(current[1]) + movementArray[1]
-    }`;
+    return `${Number(current[0]) + movementArray[0]}${Number(current[1]) + movementArray[1]
+      }`;
   };
   const innitialAllowedPosArray = [];
   const finalAllowedPosArray = [];
@@ -812,9 +863,8 @@ const calculateKingMovement = (
     [-1, +1],
   ];
   const calculateNewPosFromOld = (current, posArray) => {
-    return `${Number(current[0]) + posArray[0]}${
-      Number(current[1]) + posArray[1]
-    }`;
+    return `${Number(current[0]) + posArray[0]}${Number(current[1]) + posArray[1]
+      }`;
   };
 
   for (const nextPosArray of movementBluePrint) {
