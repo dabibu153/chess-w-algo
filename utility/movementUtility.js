@@ -4,7 +4,8 @@ export const calculatePosibleMovementLocations = (
   white,
   black,
   setallowedPos,
-  moveCount
+  moveCount,
+  setSpecialPawnMove
 ) => {
   const opponents = activeSide === "white" ? black : white;
   const me = activeSide === "white" ? white : black;
@@ -29,7 +30,8 @@ export const calculatePosibleMovementLocations = (
       black,
       moveCount
     );
-    setallowedPos(finalAllowedPos);
+    setallowedPos(finalAllowedPos.allowedPosArray);
+    setSpecialPawnMove(finalAllowedPos.specialMoveSpot);
   } else if (myPiece === "horse") {
     finalAllowedPos = calculateHorseMovement(current, myPiecesLocArray);
     setallowedPos(finalAllowedPos);
@@ -89,8 +91,8 @@ export const handleCastling = (
   whiteKingCheck,
   blackKingCheck
 ) => {
-  if (activeSide === "white" && whiteKingCheck) return;
-  if (activeSide === "black" && blackKingCheck) return;
+  if (activeSide === "white" && whiteKingCheck) return false;
+  if (activeSide === "black" && blackKingCheck) return false;
 
   let flag = true;
   const allPiecesArray = [];
@@ -179,7 +181,7 @@ export const handleCastling = (
       break;
   }
 
-  if (!flag) return;
+  if (!flag) return false;
 
   if (activeSide === "white") {
     setWhite(whiteCopy);
@@ -194,6 +196,7 @@ export const handleCastling = (
   setactiveSide(activeSide === "white" ? "black" : "white");
   setactivePiece();
   setRefresh(!refresh);
+  return true;
 };
 
 const checkForPromotions = (white, black, setShowPromotionBox) => {
@@ -249,7 +252,9 @@ export const doMovementThings = (
   setBlackKingCheck,
   setShowPromotionBox,
   moveCount,
-  setMoveCount
+  setMoveCount,
+  specialPawnMove,
+  setSpecialPawnMove
 ) => {
   if (allowedPos.includes(id)) {
     const mySideArray = activeSide === "white" ? white : black;
@@ -305,6 +310,9 @@ export const doMovementThings = (
           });
         }
       }
+      if (myTargetPieceName === "pawn" && id === specialPawnMove) {
+        blackCopy = blackCopy.filter((obj) => obj.position != `${Number(id[0]) + 1}${id[1]}`);
+      }
     } else {
       if (oppPos.includes(id)) {
         whiteCopy = whiteCopy.filter((obj) => obj.position != id);
@@ -340,6 +348,9 @@ export const doMovementThings = (
           });
         }
       }
+      if (myTargetPieceName === "pawn" && id === specialPawnMove) {
+        whiteCopy = whiteCopy.filter((obj) => obj.position != `${Number(id[0]) - 1}${id[1]}`);
+      }
     }
 
     const willWhiteKingBeUnderCheck = checkIfKingUnderCheck(
@@ -358,14 +369,13 @@ export const doMovementThings = (
     setWhiteKingCheck(willWhiteKingBeUnderCheck);
     setBlackKingCheck(willBlackKingBeUnderCheck);
 
-    console.log(whiteCopy[0]);
-
     setWhite(whiteCopy);
     setBlack(blackCopy);
     setactiveSide(activeSide === "white" ? "black" : "white");
     setallowedPos([]);
     setactivePiece();
     setMoveCount(moveCount + 1);
+    setSpecialPawnMove();
     setRefresh(!refresh);
     checkForPromotions(whiteCopy, blackCopy, setShowPromotionBox);
   }
@@ -499,7 +509,7 @@ const checkIfKingUnderCheck = (checkSide, white, black) => {
         black,
 
       );
-      if (finalAllowedPos.includes(kingCurrentPosition)) {
+      if (finalAllowedPos.allowedPosArray.includes(kingCurrentPosition)) {
         kingUnderCheck = true;
       }
     } else if (onePiece.piece === "horse") {
@@ -616,9 +626,9 @@ const calculatePawnMovement = (
     const targetPawnRight = black.find(obj =>
       obj.piece === "pawn" && obj.position === `${current[0]}${Number(current[1]) + 1}` && obj.doubleCount === moveCount - 1
     );
-    console.log(targetPawnRight)
     if (targetPawnRight) {
       if (!allPosArray.includes(`${Number(current[0]) - 1}${Number(current[1]) + 1}`)) {
+        allowedPosArray.push(`${Number(current[0]) - 1}${Number(current[1]) + 1}`);
         specialMoveSpot = `${Number(current[0]) - 1}${Number(current[1]) + 1}`;
       }
     }
@@ -628,6 +638,7 @@ const calculatePawnMovement = (
     );
     if (targetPawnLeft) {
       if (!allPosArray.includes(`${Number(current[0]) - 1}${Number(current[1]) - 1}`)) {
+        allowedPosArray.push(`${Number(current[0]) - 1}${Number(current[1]) - 1}`);
         specialMoveSpot = `${Number(current[0]) - 1}${Number(current[1]) - 1}`;
       }
     }
@@ -639,6 +650,7 @@ const calculatePawnMovement = (
     );
     if (targetPawnRight) {
       if (!allPosArray.includes(`${Number(current[0]) + 1}${Number(current[1]) + 1}`)) {
+        allowedPosArray.push(`${Number(current[0]) + 1}${Number(current[1]) + 1}`);
         specialMoveSpot = `${Number(current[0]) + 1}${Number(current[1]) + 1}`;
       }
     }
@@ -648,6 +660,7 @@ const calculatePawnMovement = (
     );
     if (targetPawnLeft) {
       if (!allPosArray.includes(`${Number(current[0]) + 1}${Number(current[1]) - 1}`)) {
+        allowedPosArray.push(`${Number(current[0]) + 1}${Number(current[1]) - 1}`);
         specialMoveSpot = `${Number(current[0]) + 1}${Number(current[1]) - 1}`;
       }
     }

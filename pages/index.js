@@ -1,4 +1,6 @@
 import { useEffect, useState } from "react";
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 import {
   calculatePosibleMovementLocations,
   doMovementThings,
@@ -23,7 +25,7 @@ export default function Home() {
     { piece: "pawn", image: "white_pawn.svg", position: "64" },
     { piece: "pawn", image: "white_pawn.svg", position: "65" },
     { piece: "pawn", image: "white_pawn.svg", position: "66" },
-    { piece: "pawn", image: "white_pawn.svg", position: "17" },
+    { piece: "pawn", image: "white_pawn.svg", position: "67" },
     { piece: "rook", image: "white_rook.svg", position: "70", primary: true },
     { piece: "horse", image: "white_horse.svg", position: "71" },
     { piece: "bishop", image: "white_bishop.svg", position: "72" },
@@ -42,7 +44,7 @@ export default function Home() {
     { piece: "queen", image: "black_queen.svg", position: "03" },
     { piece: "bishop", image: "black_bishop.svg", position: "05" },
     { piece: "horse", image: "black_horse.svg", position: "06" },
-    { piece: "rook", image: "black_rook.svg", position: "37", primary: true },
+    { piece: "rook", image: "black_rook.svg", position: "07", primary: true },
     { piece: "pawn", image: "black_pawn.svg", position: "10" },
     { piece: "pawn", image: "black_pawn.svg", position: "11" },
     { piece: "pawn", image: "black_pawn.svg", position: "12" },
@@ -50,7 +52,7 @@ export default function Home() {
     { piece: "pawn", image: "black_pawn.svg", position: "14" },
     { piece: "pawn", image: "black_pawn.svg", position: "15" },
     { piece: "pawn", image: "black_pawn.svg", position: "16" },
-    { piece: "pawn", image: "black_pawn.svg", position: "27" },
+    { piece: "pawn", image: "black_pawn.svg", position: "17" },
   ]);
   const [activePiece, setactivePiece] = useState();
   const [allowedPos, setallowedPos] = useState([]);
@@ -58,6 +60,7 @@ export default function Home() {
   const [refresh, setRefresh] = useState(true);
   const [whiteKingCheck, setWhiteKingCheck] = useState(false);
   const [blackKingCheck, setBlackKingCheck] = useState(false);
+  const [specialPawnMove, setSpecialPawnMove] = useState();
 
   const [showPromotionBox, setShowPromotionBox] = useState(false);
 
@@ -69,7 +72,7 @@ export default function Home() {
   }, [white, black, refresh]);
 
   const castle = (button) => {
-    handleCastling(
+    const castleResp = handleCastling(
       button,
       activeSide,
       setactiveSide,
@@ -86,6 +89,9 @@ export default function Home() {
       whiteKingCheck,
       blackKingCheck
     );
+    if (!castleResp) {
+      toast.warning("Invalid Move !!")
+    }
   };
 
   const boardClicked = (id) => {
@@ -101,7 +107,8 @@ export default function Home() {
         white,
         black,
         setallowedPos,
-        moveCount
+        moveCount,
+        setSpecialPawnMove
       );
     } else {
       doMovementThings(
@@ -126,7 +133,9 @@ export default function Home() {
         setBlackKingCheck,
         setShowPromotionBox,
         moveCount,
-        setMoveCount
+        setMoveCount,
+        specialPawnMove,
+        setSpecialPawnMove
       );
     }
   };
@@ -160,13 +169,13 @@ export default function Home() {
     <div className="h-screen w-screen flex items-center justify-center">
       <div
         className={`${blackKingCheck ? "fixed" : "hidden"
-          } top-0 right-0 m-5 bg-red-300 px-2 font-bold text-xl rounded-lg`}
+          } top-0 left-0 m-5 bg-red-300 px-2 font-bold text-xl rounded-lg`}
       >
         Black King Under Check
       </div>
       <div
         className={`${whiteKingCheck ? "fixed" : "hidden"
-          } bottom-0 right-0 m-5 bg-red-300 px-2 font-bold text-xl rounded-lg`}
+          } bottom-0 left-0 m-5 bg-red-300 px-2 font-bold text-xl rounded-lg`}
       >
         White King Under Check
       </div>
@@ -174,8 +183,8 @@ export default function Home() {
         <div
           onClick={() => castle("blackLeft")}
           className={`${castlingInfo.blackLeft && activeSide === "black"
-              ? "absolute"
-              : "hidden"
+            ? "absolute"
+            : "hidden"
             } -top-10 left-3 z-10 font-bold text-white bg-blue-300 px-2 rounded-lg cursor-pointer	`}
         >
           CASTLE
@@ -183,8 +192,8 @@ export default function Home() {
         <div
           onClick={() => castle("blackRight")}
           className={`${castlingInfo.blackRight && activeSide === "black"
-              ? "absolute"
-              : "hidden"
+            ? "absolute"
+            : "hidden"
             } -top-10 right-3 z-10 font-bold text-white bg-blue-300 px-2 rounded-lg cursor-pointer	`}
         >
           CASTLE
@@ -192,8 +201,8 @@ export default function Home() {
         <div
           onClick={() => castle("whiteLeft")}
           className={`${castlingInfo.whiteLeft && activeSide === "white"
-              ? "absolute"
-              : "hidden"
+            ? "absolute"
+            : "hidden"
             } -bottom-10 left-3 z-10 font-bold text-white bg-blue-300 px-2 rounded-lg cursor-pointer	`}
         >
           CASTLE
@@ -201,8 +210,8 @@ export default function Home() {
         <div
           onClick={() => castle("whiteRight")}
           className={`${castlingInfo.whiteRight && activeSide === "white"
-              ? "absolute"
-              : "hidden"
+            ? "absolute"
+            : "hidden"
             } -bottom-10 right-3 z-10 font-bold text-white bg-blue-300 px-2 rounded-lg cursor-pointer	`}
         >
           CASTLE
@@ -224,14 +233,13 @@ export default function Home() {
                     boardClicked("" + rowVal + colVal);
                   }}
                   className={` flex items-center justify-center h-full w-full ${allowedPos.includes("" + rowVal + colVal)
-                      ? "bg-red-200 border border-3 border-white"
-                      : ""
+                    ? "bg-red-200 border border-3 border-white"
+                    : ""
                     } 
                   `}
                   id={"" + rowVal + colVal}
                 ></div>
                 <div className="absolute top-0 lrft-0">
-                  {"" + rowVal + colVal}
                 </div>
               </div>
             ))}
@@ -270,6 +278,7 @@ export default function Home() {
           </div>
         </div>
       </div>
+      <ToastContainer />
     </div>
   );
 }
